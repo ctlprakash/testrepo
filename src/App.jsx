@@ -1,47 +1,96 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import './App.css'
 
 function App() {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Hello! I'm a ChatGPT clone. How can I help?" },
+    { role: 'assistant', content: 'Hello! How can I help you today?' },
   ])
   const [input, setInput] = useState('')
+  const chatWindowRef = useRef(null)
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!input.trim()) return
-    setMessages([...messages, { role: 'user', content: input }])
+  useEffect(() => {
+    const el = chatWindowRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [messages])
+
+  const sendMessage = () => {
+    const text = input.trim()
+    if (!text) return
+    setMessages((prev) => [...prev, { role: 'user', content: text }])
     setInput('')
+
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: 'This is a placeholder response.' },
+      ])
+    }, 500)
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      sendMessage()
+    }
   }
 
   return (
-    <div className="chatgpt-app">
+    <div className="app">
       <aside className="sidebar">
-        <button className="new-chat">+ New chat</button>
-        <ul className="history">
-          <li>Chat with Clone</li>
-        </ul>
+        <div className="sidebar-header">
+          <button className="new-chat">
+            <i className="fa fa-plus"></i> New Chat
+          </button>
+        </div>
+        <nav className="chat-history">
+          <div className="history-item active">Sample conversation</div>
+          <div className="history-item">Another chat</div>
+        </nav>
+        <div className="sidebar-footer">
+          <button className="footer-btn">
+            <i className="fa fa-gear"></i> Settings
+          </button>
+          <button className="footer-btn">
+            <i className="fa fa-right-from-bracket"></i> Log out
+          </button>
+        </div>
       </aside>
-      <main className="chat">
-        <div className="messages">
+
+      <main className="main">
+        <header className="top-bar">
+          <div className="title">ChatGPT</div>
+          <div className="top-bar-actions">
+            <i className="fa fa-lightbulb"></i>
+            <i className="fa fa-user"></i>
+          </div>
+        </header>
+        <section className="chat-window" ref={chatWindowRef}>
           {messages.map((m, i) => (
             <div key={i} className={`message ${m.role}`}>
-              <div className="avatar">{m.role === 'user' ? 'U' : 'G'}</div>
-              <div className="content">{m.content}</div>
+              <div className="avatar">
+                {m.role === 'assistant' ? 'GPT' : 'U'}
+              </div>
+              <div className="bubble">{m.content}</div>
             </div>
           ))}
-        </div>
-        <form className="input" onSubmit={handleSubmit}>
-          <input
+        </section>
+        <footer className="composer">
+          <textarea
+            id="prompt"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Send a message..."
-          />
-          <button type="submit">Send</button>
-        </form>
+            rows={1}
+          ></textarea>
+          <button id="send-btn" onClick={sendMessage}>
+            <i className="fa fa-paper-plane"></i>
+          </button>
+        </footer>
       </main>
     </div>
   )
 }
 
 export default App
+
