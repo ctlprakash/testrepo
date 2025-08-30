@@ -2,67 +2,46 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  const [darkMode, setDarkMode] = useState(false)
+  const [messages, setMessages] = useState([
+    { role: 'assistant', content: "Hello! I'm a ChatGPT clone. How can I help?" },
+  ])
+  const [input, setInput] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!input.trim()) return
+    setMessages([...messages, { role: 'user', content: input }])
+    setInput('')
+  }
 
   return (
-    <div className={`app ${darkMode ? 'dark' : 'light'}`}>
+    <div className="chatgpt-app">
       <aside className="sidebar">
-        <div className="logo">F2AI</div>
-        <nav className="nav">
-          <a href="#">All Chat</a>
-          <a href="#">AI Image Generate</a>
-          <a href="#">Manage Account</a>
-          <a href="#">Help Centre</a>
-        </nav>
-        <div className="sidebar-footer">
-          <button className="upgrade">Upgrade</button>
-        </div>
+        <button className="new-chat">+ New chat</button>
+        <ul className="history">
+          <li>Chat with Clone</li>
+        </ul>
       </aside>
-
-      <section className="main">
-        <header className="topbar">
-          <div className="search-wrapper">
-            <input type="text" placeholder="Search AI Tools" />
-          </div>
-          <div className="topbar-actions">
-            <button
-              className="mode-toggle"
-              onClick={() => setDarkMode(!darkMode)}
-              aria-label="Toggle theme"
-            >
-              {darkMode ? '☀️' : '🌙'}
-            </button>
-            <div className="avatar">N</div>
-          </div>
-        </header>
-
-        <div className="content">
-          <h2>Hello Neel</h2>
-          <div className="cards">
-            <div className="card examples">
-              <h3>Examples</h3>
-              <p>&quot;What would happen if all clocks suddenly stopped?&quot;</p>
+      <main className="chat">
+        <div className="messages">
+          {messages.map((m, i) => (
+            <div key={i} className={`message ${m.role}`}>
+              <div className="avatar">{m.role === 'user' ? 'U' : 'G'}</div>
+              <div className="content">{m.content}</div>
             </div>
-            <div className="card capabilities">
-              <h3>Capabilities</h3>
-              <p>Create a plot twist for a classic tale</p>
-            </div>
-            <div className="card limitations">
-              <h3>Limitations</h3>
-              <p>Make it based on facts I haven’t verified yet</p>
-            </div>
-          </div>
+          ))}
         </div>
-
-        <form className="input-bar">
+        <form className="input" onSubmit={handleSubmit}>
           <input
-            type="text"
-            placeholder="Can you explain more information about Atson agency PVT"/>
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Send a message..."
+          />
+          <button type="submit">Send</button>
         </form>
-      </section>
+      </main>
     </div>
   )
 }
 
 export default App
-
